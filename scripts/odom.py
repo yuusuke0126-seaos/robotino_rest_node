@@ -62,12 +62,12 @@ def talker():
         vw = data[5]
 
         odom_quat = tf.transformations.quaternion_from_euler(0, 0, w)
-        odom_broadcaster.sendTransform((x, y, 0.), odom_quat, current_time, "base_link", "odom")
+        odom_broadcaster.sendTransform((x, y, 0.), odom_quat, current_time, "base_footprint", "odom")
         odom = Odometry()
         odom.header.stamp = current_time
         odom.header.frame_id = "odom"
         odom.pose.pose = Pose(Point(x, y, 0.), Quaternion(*odom_quat))
-        odom.child_frame_id = "base_link"
+        odom.child_frame_id = "base_footprint"
         odom.twist.twist = Twist(Vector3(vx, vy, 0), Vector3(0, 0, vw))
         odomPub.publish(odom)
       else:

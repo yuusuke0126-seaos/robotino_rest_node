@@ -54,12 +54,7 @@ def talker():
         data = r.json() 
         rospy.loginfo(data)
         current_time = rospy.Time.now()
-        x = data[0]
-        y = data[1]
-        w = data[2]
-        vx = data[3]
-        vy = data[4]
-        vw = data[5]
+        [x, y, w, vx, vy, vw] = data
 
         odom_quat = tf.transformations.quaternion_from_euler(0, 0, w)
         odom_broadcaster.sendTransform((x, y, 0.), odom_quat, current_time, "base_footprint", "odom")

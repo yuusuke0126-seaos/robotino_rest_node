@@ -54,7 +54,6 @@ def callback(data):
 
 def listener():
 	rospy.init_node('robotino_omnidrive', anonymous=True)
-	#rospy.Subscriber("/cmd_vel_mux/input/teleop", Twist, callback)
 	rospy.Subscriber("/cmd_vel", Twist, callback)
 	rospy.spin()
 

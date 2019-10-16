@@ -33,8 +33,14 @@
 
 import requests 
 import sys
-import rospy
 import json
+
+from math import sin, cos, pi
+import numpy
+import cvxopt
+from cvxopt import matrix
+
+import rospy
 from geometry_msgs.msg import Twist
 
 # api-endpoint 
@@ -46,7 +52,6 @@ class RobotinoDriver():
     rospy.init_node('robotino_omnidrive', anonymous=True)
     rospy.Subscriber("/cmd_vel", Twist, self.callback)
     self.pdata = [0.0, 0.0, 0.0]
-    self.stop_flag = False
     self.last_time = rospy.Time.now()
   
   def getSensorData(self, data_name):
@@ -63,9 +68,18 @@ class RobotinoDriver():
     return data
   
   def modifyCmdVel(self, dist_data):
-    # Working
-    if min(dist_data) < 0.3:
-      self.pdata = [0.0, 0.0, 0.0]
+    # min_x (v-x)^2 s.t. Gx <= h
+    P = matrix(numpy.eye(2))
+    q = matrix(-numpy.array(self.pdata[0:2]))
+    G0, h0 = [], []
+    for i in range(9):
+      if dist_data[i] < 0.35:
+        G0.append([cos(pi/4.5*i), sin(pi/4.5*i)])
+        h0.append((dist_data[i]-0.1)*0.2/0.25)
+    G = matrix(numpy.array(G0))
+    h = matrix(numpy.array(h0))
+    sol=cvxopt.solvers.qp(P,q,G,h)
+    self.pdata[0:2] = sol["x"]
 
   def driveMotor(self, pdata):
     try:
@@ -93,7 +107,7 @@ class RobotinoDriver():
       elif current_time - self.last_time > rospy.Duration(0, 5.0 * 10**8): # current_time - last_time > 0.5 sec
         self.pdata = [0.0, 0.0, 0.0]
         rospy.logwarn("CmdVel is not published!")
-      elif min(dist_data) < 0.3:
+      elif min(dist_data) < 0.35:
         self.modifyCmdVel(dist_data)
         rospy.logwarn("There are obstacles near the robotino!")
       self.driveMotor(self.pdata)

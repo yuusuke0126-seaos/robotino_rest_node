@@ -77,6 +77,8 @@ class RobotinoDriver():
         G0.append([cos(pi/4.5*i), sin(pi/4.5*i)])
 #        h0.append((dist_data[i]-0.3)*0.15/0.05)
         h0.append(0.0)
+        if dist_data[i] < 0.3:
+          h0[-1] = -0.05
     G = matrix(numpy.array(G0))
     h = matrix(numpy.array(h0))
     sol=cvxopt.solvers.qp(P,q,G,h)

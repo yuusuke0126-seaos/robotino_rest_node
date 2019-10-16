@@ -51,7 +51,7 @@ class RobotinoDriver():
   def __init__(self):
     rospy.init_node('robotino_omnidrive', anonymous=True)
     rospy.Subscriber("/cmd_vel", Twist, self.callback)
-    self.pdata = [0.0, 0.0, 0.0]
+    self.pdata = [0.0, 0.0, 0.0] # [vx, vy, vw]
     self.last_time = rospy.Time.now()
   
   def getSensorData(self, data_name):
@@ -75,15 +75,15 @@ class RobotinoDriver():
     for i in range(9):
       if dist_data[i] < 0.35:
         G0.append([cos(pi/4.5*i), sin(pi/4.5*i)])
-        h0.append((dist_data[i]-0.1)*0.2/0.25)
+        h0.append((dist_data[i]-0.3)*0.15/0.05)
     G = matrix(numpy.array(G0))
     h = matrix(numpy.array(h0))
     sol=cvxopt.solvers.qp(P,q,G,h)
     self.pdata[0:2] = sol["x"]
 
-  def driveMotor(self, pdata):
+  def driveMotor(self, vel_cmd):
     try:
-      r = requests.post(url = URL+"data/omnidrive", params = PARAMS, data = json.dumps(pdata) )
+      r = requests.post(url = URL+"data/omnidrive", params = PARAMS, data = json.dumps(vel_cmd) )
       if r.status_code != requests.codes.ok:
         rospy.logwarn("post to %s with params %s failed", URL+"data/omnidrive", PARAMS)
     except requests.exceptions.RequestException as e:

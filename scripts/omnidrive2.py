@@ -105,12 +105,12 @@ class RobotinoDriver():
       if is_bumper is True:
         self.pdata = [0.0, 0.0, 0.0]
         rospy.logwarn("Bumper is hit!")
-      elif current_time - self.last_time > rospy.Duration(0, 5.0 * 10**8): # current_time - last_time > 0.5 sec
-        self.pdata = [0.0, 0.0, 0.0]
-        rospy.logwarn("CmdVel is not published!")
       elif min(dist_data) < 0.35:
         self.modifyCmdVel(dist_data)
         rospy.logwarn("There are obstacles near the robotino!")
+      elif current_time - self.last_time > rospy.Duration(0, 5.0 * 10**8): # current_time - last_time > 0.5 sec
+        self.pdata = [0.0, 0.0, 0.0]
+        rospy.loginfo("CmdVel is not published!")
       self.driveMotor(self.pdata)
       rate.sleep()
       

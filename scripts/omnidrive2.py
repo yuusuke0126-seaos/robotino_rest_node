@@ -35,13 +35,14 @@ import requests
 import sys
 import json
 
-from math import sin, cos, pi
+from math import sin, cos, pi, sqrt
 import numpy
 import cvxopt
 from cvxopt import matrix
 
 import rospy
 from geometry_msgs.msg import Twist
+from sensor_msgs.msg import JointState
 
 # api-endpoint 
 URL = "http://127.0.0.1/"
@@ -51,8 +52,12 @@ class RobotinoDriver():
   def __init__(self):
     rospy.init_node('robotino_omnidrive', anonymous=True)
     rospy.Subscriber("/cmd_vel", Twist, self.callback)
+    self.joint_pub = rospy.Publisher("/joint_state", JointState, queue_size=1)
     self.pdata = [0.0, 0.0, 0.0] # [vx, vy, vw]
     self.last_time = rospy.Time.now()
+    self.joint_msg = JointState()
+    self.joint_msg.name = ['wheel0_joint', 'wheel1_joint', 'wheel2_joint']
+    self.joint_num = numpy.zeros(3)
   
   def getSensorData(self, data_name):
     try:
@@ -83,6 +88,19 @@ class RobotinoDriver():
     h = matrix(numpy.array(h0))
     sol=cvxopt.solvers.qp(P,q,G,h)
     self.pdata[0:2] = sol["x"]
+  
+  def updateJoint(self):
+    rw = 0.06 # wheel radius
+    rr = 0.225 # robotino radius
+    R_mat = numpy.array([[-sqrt(3)/2, 1/2, rr], [0.0, 1.0, rr], [sqrt(3)/2, 1/2, rr]])/rw
+    self.joint_num += numpy.dot(R_mat, numpy.array(self.pdata))
+    return self.joint_num
+
+  def pubJoint(self):
+    self.joint_msg.header.stamp = rospy.Time.now()
+    self.joint_msg.position = self.updateJoint().tolist()
+    self.joint_pub.publish(self.joint_msg)
+    pass
 
   def driveMotor(self, vel_cmd):
     try:

@@ -96,7 +96,7 @@ class RobotinoDriver():
     self.joint_num += numpy.dot(R_mat, numpy.array(self.pdata))
     return self.joint_num
 
-  def pubJoint(self):
+  def publishJoint(self):
     self.joint_msg.header.stamp = rospy.Time.now()
     self.joint_msg.position = self.updateJoint().tolist()
     self.joint_pub.publish(self.joint_msg)
@@ -132,6 +132,7 @@ class RobotinoDriver():
         self.pdata = [0.0, 0.0, 0.0]
         rospy.loginfo("CmdVel is not published!")
       self.driveMotor(self.pdata)
+      self.publishJoint()
       rate.sleep()
       
 

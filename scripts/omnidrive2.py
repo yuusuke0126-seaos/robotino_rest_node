@@ -52,7 +52,7 @@ class RobotinoDriver():
   def __init__(self):
     rospy.init_node('robotino_omnidrive', anonymous=True)
     rospy.Subscriber("/cmd_vel", Twist, self.callback)
-    self.joint_pub = rospy.Publisher("/joint_state", JointState, queue_size=1)
+    self.joint_pub = rospy.Publisher("/joint_states", JointState, queue_size=1)
     self.pdata = [0.0, 0.0, 0.0] # [vx, vy, vw]
     self.last_time = rospy.Time.now()
     self.joint_msg = JointState()

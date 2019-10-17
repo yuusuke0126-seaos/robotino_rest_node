@@ -93,7 +93,7 @@ class RobotinoDriver():
     rw = 0.06 # wheel radius
     rr = 0.225 # robotino radius
     R_mat = numpy.array([[-sqrt(3)/2, 1/2, rr], [0.0, 1.0, rr], [sqrt(3)/2, 1/2, rr]])/rw
-    self.joint_num += numpy.dot(R_mat, numpy.array(self.pdata))
+    self.joint_num += numpy.dot(R_mat, numpy.array(self.pdata)) * 0.1 # 10 Hz
     return self.joint_num
 
   def publishJoint(self):

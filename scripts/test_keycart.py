@@ -31,7 +31,7 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-from math import sin, cos, tan, asin, pi, sqrt
+from math import cos, acos, pi
 import time
 import numpy as np
 
@@ -85,12 +85,14 @@ class TestKeycart():
     return target_angle-self.yaw
 
   def startCirculate(self, keep_angle, pipe_distance):
-    if (keep_angle==0) or (abs(keep_angle)>pi/2):
+    if (keep_angle==0) or (abs(keep_angle)>=pi):
       rospy.logwarn("keep_angle is not appropriate, %1.1f", keep_angle)
       return 0
     traj_r = 1.7 / cos(pi/2-keep_angle)
-    if pipe_distance > 
-    target_angle = 3.0/2.0*pi - asin((pipe_distance-1.7*tan(pi/2-keep_angle))/traj_r)
+    if pipe_distance > abs(traj_r) * (1+cos(keep_angle)):
+      target_angle = np.sign(traj_r) * pi
+    else:
+      target_angle = np.sign(traj_r) * (2*pi - acos(cos(keep_angle) - pipe_distance/abs(traj_r)))
     max_x = 0.3
     max_z = max_x / abs(traj_r)
     rate = rospy.Rate(10)
@@ -132,7 +134,7 @@ class TestKeycart():
   def startDrive(self):
     time.sleep(1)
     self.yaw = 0.0
-    target_angle = 70.0 * pi / 180.0 # target_angle should be in [-pi/2:pi/2] (except 0), positive -> turn left, negative -> turn right
+    target_angle = 70.0 * pi / 180.0 # target_angle should be in [-pi:pi] (except 0), positive -> turn left, negative -> turn right
     pipe_distance = 2.0              # positive value
     rospy.loginfo("Target angle: %1.1f", target_angle*180/pi)
 

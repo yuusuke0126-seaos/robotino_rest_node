@@ -134,8 +134,8 @@ class TestKeycart():
   def startDrive(self):
     time.sleep(1)
     self.yaw = 0.0
-    target_angle = 70.0 * pi / 180.0 # target_angle should be in [-pi:pi] (except 0), positive -> turn left, negative -> turn right
-    pipe_distance = 2.0              # positive value
+    target_angle = 70.0 * pi / 180.0 # target_angle must be in [-pi:pi] (except 0), positive -> turn left, negative -> turn right
+    pipe_distance = 2.0              # Must be positive value
     rospy.loginfo("Target angle: %1.1f", target_angle*180/pi)
 
     ang_err = self.startTurn(target_angle)

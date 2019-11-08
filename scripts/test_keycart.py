@@ -144,13 +144,13 @@ class TestKeycart():
     rospy.loginfo("Turn finish! err: %1.1f", ang_err*180/pi)
     time.sleep(1)
 
-    ang_err = self.startCirculate(keep_angle=target_angle, pipe_distance)
+    ang_err = self.startCirculate(target_angle, pipe_distance)
     if abs(ang_err) > 0.1:
       rospy.logwarn("angle error: %1.1f", ang_err*180/pi)
     rospy.loginfo("Circulate finish! err: %1.1f", ang_err*180/pi)
     time.sleep(1)
 
-    ang_err = self.startTurn(target_angle=pi)
+    ang_err = self.startTurn(target_angle=np.sign(target_angle)*pi)
     if abs(ang_err) > 0.1:
       rospy.logwarn("angle error: %1.1f", ang_err*180/pi)
     rospy.loginfo("Turn finish! err: %1.1f", ang_err*180/pi)

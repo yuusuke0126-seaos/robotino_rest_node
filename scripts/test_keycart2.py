@@ -116,7 +116,39 @@ class TestKeycart():
     t.linear.x = 0.0
     self.pub.publish(t)
     return target_angle-self.yaw
-  
+
+  def startUturn(self, target_angle, pipe_distance):
+    max_x = 0.3
+    max_z = 0.3
+
+    traj_r = np.sign(target_angle) * pipe_distance / 2.0
+    rate = rospy.Rate(10)
+    t = Twist()
+    count = 0
+    while (count < 10) and (not raspy.is_shutdown()):
+      cmd_z = 1.0 * (target_angle - self.yaw)
+      if abs(cmd_z) > max_z:
+        cmd_z = np.sign(cmd_z) * max_z
+      cmd_x = cmd_z * traj_r
+      if abs(cmd_x) > max_x:
+        cmd_x = np.sign(cmd_x) * max_x
+        cmd_z = cmd_x / traj_r
+      t.angular.z = cmd_z
+      t.linear.x = cmd_x
+      rospy.loginfo("Yaw (deg): %1.1f", self.yaw*180/pi)
+      self.pub.publish(t)
+      if abs(target_angle-self.yaw) < 0.05:
+        count += 1
+      else:
+        count = 0
+      rate.sleep()
+    t.angular.z = 0.0
+    t.linear.x = 0.0
+    self.pub.publish(t)
+    return target_angle-self.yaw
+
+
+
   def startStraight(self, sec):
     max_x = 0.4
     count = 0
@@ -134,30 +166,37 @@ class TestKeycart():
   def startDrive(self):
     time.sleep(1)
     self.yaw = 0.0
-    target_angle = 70.0 * pi / 180.0 # target_angle must be in [-pi:pi] (except 0), positive -> turn left, negative -> turn right
+    # target_angle = 70.0 * pi / 180.0 # target_angle must be in [-pi:pi] (except 0), positive -> turn left, negative -> turn right
+    target_angle = -pi
     pipe_distance = 2.0              # Must be positive value
     rospy.loginfo("Target angle: %1.1f", target_angle*180/pi)
-
-    ang_err = self.startTurn(target_angle)
-    if abs(ang_err) > 0.1:
-      rospy.logwarn("angle error: %1.1f", ang_err*180/pi)
-    rospy.loginfo("Turn finish! err: %1.1f", ang_err*180/pi)
-    time.sleep(1)
-
-    ang_err = self.startCirculate(target_angle, pipe_distance)
+    
+    ang_err = self.startUturn(target_angle, pipe_distance)
     if abs(ang_err) > 0.1:
       rospy.logwarn("angle error: %1.1f", ang_err*180/pi)
     rospy.loginfo("Circulate finish! err: %1.1f", ang_err*180/pi)
     time.sleep(1)
 
-    ang_err = self.startTurn(target_angle=np.sign(target_angle)*pi)
-    if abs(ang_err) > 0.1:
-      rospy.logwarn("angle error: %1.1f", ang_err*180/pi)
-    rospy.loginfo("Turn finish! err: %1.1f", ang_err*180/pi)
-    time.sleep(1)
+    # ang_err = self.startTurn(target_angle)
+    # if abs(ang_err) > 0.1:
+    #   rospy.logwarn("angle error: %1.1f", ang_err*180/pi)
+    # rospy.loginfo("Turn finish! err: %1.1f", ang_err*180/pi)
+    # time.sleep(1)
 
-    self.startStraight(sec=5)
-    rospy.loginfo("Straight finish! Yaw: %1.1f", self.yaw*180/pi)
+    # ang_err = self.startCirculate(target_angle, pipe_distance)
+    # if abs(ang_err) > 0.1:
+    #   rospy.logwarn("angle error: %1.1f", ang_err*180/pi)
+    # rospy.loginfo("Circulate finish! err: %1.1f", ang_err*180/pi)
+    # time.sleep(1)
+
+    # ang_err = self.startTurn(target_angle=np.sign(target_angle)*pi)
+    # if abs(ang_err) > 0.1:
+    #   rospy.logwarn("angle error: %1.1f", ang_err*180/pi)
+    # rospy.loginfo("Turn finish! err: %1.1f", ang_err*180/pi)
+    # time.sleep(1)
+
+    # self.startStraight(sec=5)
+    # rospy.loginfo("Straight finish! Yaw: %1.1f", self.yaw*180/pi)
       
 
 if __name__ == '__main__':

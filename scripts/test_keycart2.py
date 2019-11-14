@@ -125,7 +125,7 @@ class TestKeycart():
     rate = rospy.Rate(10)
     t = Twist()
     count = 0
-    while (count < 10) and (not raspy.is_shutdown()):
+    while (count < 10) and (not rospy.is_shutdown()):
       cmd_z = 1.0 * (target_angle - self.yaw)
       if abs(cmd_z) > max_z:
         cmd_z = np.sign(cmd_z) * max_z

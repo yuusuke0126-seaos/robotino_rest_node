@@ -58,7 +58,7 @@ class TestKeycart():
     yaw_change = yaw - self.yaw_last
     if abs(yaw_change) > pi:
       yaw_change = -np.sign(yaw_change) * (2*pi - abs(yaw_change))
-    self.yaw += yaw_change
+    self.yaw += yaw_change * (0.98919)
     self.yaw_last = yaw
     
 
@@ -168,7 +168,7 @@ class TestKeycart():
     self.yaw = 0.0
     # target_angle = 70.0 * pi / 180.0 # target_angle must be in [-pi:pi] (except 0), positive -> turn left, negative -> turn right
     target_angle = -pi
-    pipe_distance = 2.0              # Must be positive value
+    pipe_distance = 3.0              # Must be positive value
     rospy.loginfo("Target angle: %1.1f", target_angle*180/pi)
     
     ang_err = self.startUturn(target_angle, pipe_distance)

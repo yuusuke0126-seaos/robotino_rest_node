@@ -86,8 +86,16 @@ class RobotinoDriver():
           h0[-1] = -0.05
     G = matrix(numpy.array(G0))
     h = matrix(numpy.array(h0))
-    sol=cvxopt.solvers.qp(P,q,G,h)
-    self.pdata[0:2] = sol["x"]
+    try:
+      sol=cvxopt.solvers.qp(P,q,G,h)
+      self.pdata[0:2] = sol["x"]
+    except ValueError as ex:
+      rospy.logerr(ex)
+      print(P)
+      print(q)
+      print(G)
+      print(h)
+      self.pdata[0:2] = [0.0, 0.0]
   
   def updateJoint(self):
     rw = 0.06 # wheel radius
